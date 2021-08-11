@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const helpText = `
 Программа запускает http-сервер и формирует файл с данными для API.
@@ -12,8 +12,8 @@ const helpText = `
 `;
 
 module.exports = {
-    name: `--help`,
-    run() {
-        console.info(helpText);
-    }
-}
+  name: `--help`,
+  run() {
+    console.info(helpText);
+  },
+};
