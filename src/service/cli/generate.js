@@ -5,6 +5,7 @@ const fs = require(`fs`);
 const DEFAULT_COUNT = 1;
 const FILE_NAME = `mocks.json`;
 const MOCK_COUNT_RESTRICT = 1000;
+const MAX_MOUNTH_DIFF = 3;
 
 const TITLES = [
   `Ёлки. История деревьев`,
@@ -59,9 +60,8 @@ const CATEGORIES = [
 const getRandFromArr = (arr) => arr[getRandomInt(0, arr.length - 1)];
 
 const getDate = () => {
-  const MAX_MOUNTH_DIFF = 3;
   const nowDate = new Date();
-  const start = new Date(2021, nowDate.getMonth() - MAX_MOUNTH_DIFF, 1);
+  const start = new Date(new Date().setMonth(nowDate.getMonth() - MAX_MOUNTH_DIFF));
   const end = new Date();
   const randomDate = new Date(
       start.getTime() + Math.random() * (end.getTime() - start.getTime())
@@ -76,7 +76,7 @@ const getAnnounce = () => {
       MIN_ANNOUNCE_RESTRICT,
       MAX_ANNOUNCE_RESTRICT
   );
-  return Array(randomTextCount)
+  return [...Array(randomTextCount)]
     .fill(``)
     .map(() => getRandFromArr(ANNOUNCES))
     .join(` `);
