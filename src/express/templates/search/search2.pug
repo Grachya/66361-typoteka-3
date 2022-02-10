@@ -1,0 +1,44 @@
+extends ../layout.pug
+
+block content
+  header.header
+    a.header__logo.logo(href='#')
+      img.logo__image(src='img/icons/logo-image-only.svg' alt='логотип Тайпотеки')
+      span.logo__name Типотека
+    button.button.button--colored.header__button-new Новая запись
+    .header__dropdown
+      a.button.button--burger.header__burger(href='#') Открыть меню
+      ul.navigation.header__navigation
+        li.navigation__item
+          a(href='main.html') Пункт меню
+        li.navigation__item
+          a(href='main.html') Пункт меню
+        li.navigation__item
+          a(href='main.html') Пункт меню
+        li.navigation__item
+          a(href='main.html') Пункт меню
+    a.header__search.button.button--search(href='#' aria-label='поиск по сайту')
+  main
+    section.search-page
+      .search-page__wrapper
+        h1 Поиск
+        .search.search-page__form
+          form(action='#' method='get')
+            label
+              input(type='text' name='search' placeholder='Что ищем?' value='Путешествия')
+            button.search__button.button.button--transparent(type='submit') Найти
+          .search__result
+            time.search__date(datetime='2019-03-21T20:33') 21.03.2019, 20:33
+            a.search__link
+              | Huawei открыла в России 
+              b путешествия
+              |  на смартфон Mate 30 Pro без сервисов
+              |                 Google
+          .search__result
+            time.search__date(datetime='2019-03-21T20:33') 21.03.2019, 20:33
+            a.search__link
+              | «Яндекс.Метрика» запустила 
+              b путешествия
+              |  сервис для оценки эффективности
+              |                 баннеров и видеорекламы в реальном времени
+
