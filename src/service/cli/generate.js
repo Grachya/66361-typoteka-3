@@ -2,15 +2,20 @@
 const {getRandomInt} = require(`../../utils`);
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
+const {shuffle} = require(`../../utils`);
+const {nanoid} = require(`nanoid`);
+const {MAX_ID_LENGTH} = require(`../../constants`);
 
 const DEFAULT_COUNT = 1;
 const FILE_NAME = `mocks.json`;
 const MOCK_COUNT_RESTRICT = 1000;
 const MAX_MOUNTH_DIFF = 3;
+const MAX_COMMENTS = 4;
 
 const FILE_ANNOUNCES_PATH = `./data/announces.txt`;
 const FILE_TITLES_PATH = `./data/titles.txt`;
 const FILE_CATEGORIES_PATH = `./data/categories.txt`;
+const FILE_COMMENTS_PATH = `./data/comments.txt`;
 
 const readContent = async (path) => {
   try {
@@ -55,15 +60,26 @@ const getFullText = (announces) => {
     .join(` `);
 };
 
-const generateOffers = (count, titles, categories, announces) =>
+const generateComments = (count, comments) => (
+  Array(count).fill({}).map(() => ({
+    id: nanoid(MAX_ID_LENGTH),
+    text: shuffle(comments)
+      .slice(0, getRandomInt(1, 3))
+      .join(` `),
+  }))
+);
+
+const generateOffers = (count, titles, categories, announces, comments) =>
   Array(count)
     .fill({})
     .map(() => ({
+      id: nanoid(MAX_ID_LENGTH),
       title: getRandFromArr(titles),
       createdDate: getDate(),
       announce: getAnnounce(announces),
       fullText: getFullText(announces),
       category: getRandFromArr(categories),
+      comments: generateComments(getRandomInt(1, MAX_COMMENTS), comments),
     }));
 
 module.exports = {
@@ -72,6 +88,7 @@ module.exports = {
     const titles = await readContent(FILE_TITLES_PATH);
     const categories = await readContent(FILE_CATEGORIES_PATH);
     const announces = await readContent(FILE_ANNOUNCES_PATH);
+    const comments = await readContent(FILE_COMMENTS_PATH);
 
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || DEFAULT_COUNT;
@@ -80,7 +97,7 @@ module.exports = {
       return;
     }
 
-    const content = JSON.stringify(generateOffers(countOffer, titles, categories, announces));
+    const content = JSON.stringify(generateOffers(countOffer, titles, categories, announces, comments));
 
     try {
       await fs.writeFile(FILE_NAME, content);
