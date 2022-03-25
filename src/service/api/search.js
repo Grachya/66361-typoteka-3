@@ -11,8 +11,14 @@ module.exports = (app, service) => {
   route.get(`/`, async (req, res) => {
     const searchText = req.query.query;
 
+    if (!searchText) {
+      res.status(HttpCode.BAD_REQUEST).json([]);
+      return;
+    }
+
     const searchArticles = await service.findAll(searchText);
-    res.status(HttpCode.OK)
+    const statusCode = searchArticles.length > 0 ? HttpCode.OK : HttpCode.NOT_FOUND;
+    res.status(statusCode)
       .json(searchArticles);
   });
 };
