@@ -1,12 +1,13 @@
 "use strict";
 
 const {Router} = require(`express`);
-const route = new Router();
 const {HttpCode} = require(`../../constants`);
 const articleValidator = require(`../middlewares/articleValidator`);
 const articleExists = require(`../middlewares/articleExists`);
 
 module.exports = (app, articleService, commentService) => {
+  const route = new Router();
+
   app.use(`/articles`, route);
 
   route.get(`/`, (req, res) => {
