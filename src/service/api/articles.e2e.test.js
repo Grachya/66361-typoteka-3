@@ -4,7 +4,7 @@ const express = require(`express`);
 const request = require(`supertest`);
 
 const article = require(`./articles`);
-const { ArticleService, CommentService } = require(`../data-service`);
+const {ArticleService, CommentService} = require(`../data-service`);
 
 const mockData = [
   {
@@ -123,13 +123,14 @@ const mockData = [
 ];
 
 const createAPI = () => {
-  const app = express();
   const cloneData = JSON.parse(JSON.stringify(mockData));
+  const app = express();
   app.use(express.json());
   article(app, new ArticleService(cloneData), new CommentService(cloneData));
   return app;
 };
-const { HttpCode } = require(`../../constants`);
+
+const {HttpCode} = require(`../../constants`);
 
 describe(`API returns a list of all articles`, () => {
   const app = createAPI();
@@ -204,7 +205,7 @@ describe(`API refuses to create an article if data is invalid`, () => {
 
   test(`Without any required property response code is 400`, async () => {
     for (const key of Object.keys(newArticle)) {
-      const badArticle = { ...newArticle };
+      const badArticle = {...newArticle};
       delete badArticle[key];
       await request(app)
         .post(`/articles`)
@@ -289,8 +290,7 @@ describe(`API correctly deletes an article`, () => {
   test(`Articles count is 5 now`, () =>
     request(app)
       .get(`/articles`)
-      // TODO must be 5
-      .expect((res) => expect(res.body.length).toBe(10)));
+      .expect((res) => expect(res.body.length).toBe(5)));
 });
 
 test(`API refuses to delete non-existent article`, () => {
