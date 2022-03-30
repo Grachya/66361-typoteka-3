@@ -38,6 +38,9 @@ class CommentService {
 
   findOne(articleId, commentId) {
     const requiredArticle = this._findArticle(articleId);
+    if (!requiredArticle) {
+      return requiredArticle;
+    }
     return requiredArticle.comments.find((comment) => comment.id === commentId);
   }
 }
