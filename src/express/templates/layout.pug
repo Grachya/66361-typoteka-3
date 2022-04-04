@@ -11,6 +11,15 @@ html(lang='ru')
         link(rel='preload' href='./fonts/SFProDisplay-Regular.woff2' as='font' crossorigin='anonymous')
         link(rel='stylesheet' href='/css/style.min.css')
     body
+        -
+            const formatDate = (dateString) => new Date(dateString).toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
+       
+        mixin insertArticleImage(article)
+            img.preview__background-image(src=`/img/${article.photo ? article.photo : 'skyscraper@1x.jpg'}` alt=article.title width='460' height='240')
+
+        mixin insertTime(article)
+            time(class!=attributes.class, datetime=article.createdDate) #{formatDate(article.createdDate)}
+
         if nobackground
             .wrapper.wrapper--nobackground
                 block content

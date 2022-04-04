@@ -3,11 +3,13 @@
 const express = require(`express`);
 const path = require(`path`);
 const PUBLIC_DIR = `public`;
+const UPLOAD_DIR = `upload`;
 const app = express();
 
 app.set(`views`, path.resolve(__dirname, `templates`));
 app.set(`view engine`, `pug`);
 app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
+app.use(express.static(path.resolve(__dirname, UPLOAD_DIR)));
 
 const articlesRoutes = require(`./routes/articles-routes`);
 const myRoutes = require(`./routes/my-routes`);

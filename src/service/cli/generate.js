@@ -16,6 +16,7 @@ const FILE_ANNOUNCES_PATH = `./data/announces.txt`;
 const FILE_TITLES_PATH = `./data/titles.txt`;
 const FILE_CATEGORIES_PATH = `./data/categories.txt`;
 const FILE_COMMENTS_PATH = `./data/comments.txt`;
+const FILE_PHOTOS_PATH = `./data/photos.txt`;
 
 const readContent = async (path) => {
   try {
@@ -29,6 +30,16 @@ const readContent = async (path) => {
 
 const getRandFromArr = (arr) => arr[getRandomInt(0, arr.length - 1)];
 
+const getRandomCategories = (arr) => {
+  return [
+    ...new Set(
+        Array(getRandomInt(1, 4))
+      .fill()
+      .map(() => arr[getRandomInt(0, arr.length - 1)])
+    )
+  ];
+};
+
 const getDate = () => {
   const nowDate = new Date();
   const start = new Date(new Date().setMonth(nowDate.getMonth() - MAX_MOUNTH_DIFF));
@@ -36,7 +47,7 @@ const getDate = () => {
   const randomDate = new Date(
       start.getTime() + Math.random() * (end.getTime() - start.getTime())
   );
-  return randomDate.toLocaleString();
+  return randomDate.toISOString();
 };
 
 const getAnnounce = (announces) => {
@@ -66,10 +77,11 @@ const generateComments = (count, comments) => (
     text: shuffle(comments)
       .slice(0, getRandomInt(1, 3))
       .join(` `),
+    createdDate: getDate(),
   }))
 );
 
-const generateOffers = (count, titles, categories, announces, comments) =>
+const generateArticles = (count, titles, categories, announces, comments, photo) =>
   Array(count)
     .fill({})
     .map(() => ({
@@ -78,8 +90,9 @@ const generateOffers = (count, titles, categories, announces, comments) =>
       createdDate: getDate(),
       announce: getAnnounce(announces),
       fullText: getFullText(announces),
-      category: getRandFromArr(categories),
+      categories: getRandomCategories(categories),
       comments: generateComments(getRandomInt(1, MAX_COMMENTS), comments),
+      photo: getRandFromArr(photo),
     }));
 
 module.exports = {
@@ -89,6 +102,7 @@ module.exports = {
     const categories = await readContent(FILE_CATEGORIES_PATH);
     const announces = await readContent(FILE_ANNOUNCES_PATH);
     const comments = await readContent(FILE_COMMENTS_PATH);
+    const photo = await readContent(FILE_PHOTOS_PATH);
 
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || DEFAULT_COUNT;
@@ -97,7 +111,7 @@ module.exports = {
       return;
     }
 
-    const content = JSON.stringify(generateOffers(countOffer, titles, categories, announces, comments));
+    const content = JSON.stringify(generateArticles(countOffer, titles, categories, announces, comments, photo));
 
     try {
       await fs.writeFile(FILE_NAME, content);

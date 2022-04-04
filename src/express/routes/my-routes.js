@@ -1,10 +1,30 @@
-'use strict';
+"use strict";
 
 const {Router} = require(`express`);
 const myRoutes = new Router();
+const api = require(`../api`).getAPI();
+const {HttpCode} = require(`../../constants`);
 
-myRoutes.get(`/`, (req, res) => res.render(`my`, {nobackground: true}));
-myRoutes.get(`/comments`, (req, res) => res.render(`comments`, {nobackground: true}));
-myRoutes.get(`/categories`, (req, res) => res.render(`all-categories`, {nobackground: true}));
+myRoutes.get(`/`, async (req, res) => {
+  try {
+    const articles = await api.getArticles();
+    return res.render(`my`, {nobackground: true, articles});
+  } catch (error) {
+    return res.status(HttpCode.NOT_FOUND).send(error.message);
+  }
+});
+
+myRoutes.get(`/comments`, async (req, res) => {
+  try {
+    const articles = await api.getArticles();
+    return res.render(`comments`, {nobackground: true, articles});
+  } catch (error) {
+    return res.status(HttpCode.NOT_FOUND).send(error.message);
+  }
+});
+
+myRoutes.get(`/categories`, (req, res) =>
+  res.render(`all-categories`, {nobackground: true})
+);
 
 module.exports = myRoutes;
