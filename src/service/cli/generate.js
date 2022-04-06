@@ -31,13 +31,7 @@ const readContent = async (path) => {
 const getRandFromArr = (arr) => shuffle(arr)[getRandomInt(0, arr.length - 1)];
 
 const getRandomCategories = (arr) => {
-  return [
-    ...new Set(
-        Array(getRandomInt(1, 4))
-      .fill()
-      .map(() => arr[getRandomInt(0, arr.length - 1)])
-    )
-  ];
+  return [...arr].sort(() => Math.random() > 0).slice(getRandomInt(0, arr.length - 1));
 };
 
 const getDate = () => {
