@@ -15,8 +15,8 @@ const upload = multer({
     destination: path.resolve(__dirname, UPLOAD_DIR),
     filename: (req, file, cb) => {
       const uniqueName = nanoid(10);
-      const extension = file.originalname.split(`.`).pop();
-      cb(null, `${uniqueName}.${extension}`);
+      const extension = path.extname(file);
+      cb(null, `${uniqueName}${extension}`);
     }
   })
 });

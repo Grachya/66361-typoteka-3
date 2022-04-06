@@ -28,7 +28,7 @@ const readContent = async (path) => {
   }
 };
 
-const getRandFromArr = (arr) => arr[getRandomInt(0, arr.length - 1)];
+const getRandFromArr = (arr) => shuffle(arr)[getRandomInt(0, arr.length - 1)];
 
 const getRandomCategories = (arr) => {
   return [
