@@ -2,8 +2,8 @@ extends ../layout.pug
 
 block content
   header.header
-    a.header__logo.logo(href='#')
-      img.logo__image(src='img/icons/logo-image-only.svg' alt='логотип Тайпотеки')
+    a.header__logo.logo(href='/')
+      img.logo__image(src='/img/icons/logo-image-only.svg' alt='логотип Тайпотеки')
       span.logo__name Типотека
     button.button.button--colored.header__button-new Новая запись
     .header__dropdown
@@ -17,13 +17,19 @@ block content
           a(href='main.html') Пункт меню
         li.navigation__item
           a(href='main.html') Пункт меню
-    a.header__search.button.button--search(href='#' aria-label='поиск по сайту')
+    a.header__search.button.button--search(href='/search' aria-label='поиск по сайту')
   main
     section.search-page
-      .search-page__wrapper
+      div(class=`search-page__wrapper${results.length ? `` : ` search-page__wrapper--empty`}`)
         h1 Поиск
         .search.search-page__form
-          form(action='#' method='get')
+          form(action='/search' method='get')
             label
-              input(type='text' name='search' placeholder='Что ищем?')
+              input(type='text' name='query' placeholder='Что ищем?' value=`${query ? query : ''}`)
             button.search__button.button.button--transparent(type='submit') Найти
+          each article of results
+            .search__result
+              time.search__date(datetime=article.createdDate) #{formatDate(article.createdDate)}
+              a.search__link(href=`/articles/${article.id}`) #{article.title}
+        if !results.length
+          p.search-page__empty Ничего не нашлось
