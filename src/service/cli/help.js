@@ -10,6 +10,7 @@ const helpText = `
       --version: выводит номер версии
       --help: печатает этот текст
       --generate <count> формирует файл mocks.json
+      --fill <count> формирует файл db/fill-db.json
 `;
 
 module.exports = {
