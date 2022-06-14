@@ -1,7 +1,7 @@
 "use strict";
 
 const pino = require(`pino`);
-const {Env} = require(`../src/constants`);
+const {Env} = require(`../../constants`);
 
 const LOG_FILE = `./logs/api.log`;
 const isDevMode = process.env.NODE_ENV === Env.DEVELOPMENT;

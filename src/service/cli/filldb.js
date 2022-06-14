@@ -1,14 +1,15 @@
 "use strict";
-const {getRandomInt} = require(`../../utils`);
+const {getRandomInt, shuffle, getText} = require(`../../utils`);
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
-const {shuffle} = require(`../../utils`);
-const {nanoid} = require(`nanoid`);
-const {MAX_ID_LENGTH} = require(`../../constants`);
+const {logger} = require(`../lib/logger`);
+const sequelize = require(`../lib/sequelize`);
+const defineModels = require(`../models`);
+const Aliase = require(`../models/aliase`);
 
 const DEFAULT_COUNT = 1;
-const FILE_NAME = `mocks.json`;
 const MOCK_COUNT_RESTRICT = 1000;
+const MAX_ANNOUNCE_LENGTH = 250;
 const MAX_MOUNTH_DIFF = 3;
 const MAX_COMMENTS = 4;
 
@@ -30,10 +31,6 @@ const readContent = async (path) => {
 
 const getRandFromArr = (arr) => shuffle(arr)[getRandomInt(0, arr.length - 1)];
 
-const getRandomCategories = (arr) => {
-  return [...arr].sort(() => Math.random() > 0).slice(getRandomInt(0, arr.length - 1));
-};
-
 const getDate = () => {
   const nowDate = new Date();
   const start = new Date(new Date().setMonth(nowDate.getMonth() - MAX_MOUNTH_DIFF));
@@ -53,8 +50,7 @@ const getAnnounce = (announces) => {
   );
   return [...Array(randomTextCount)]
     .fill(``)
-    .map(() => getRandFromArr(announces))
-    .join(` `);
+    .map(() => getRandFromArr(announces));
 };
 
 const getFullText = (announces) => {
@@ -67,7 +63,6 @@ const getFullText = (announces) => {
 
 const generateComments = (count, comments) => (
   Array(count).fill({}).map(() => ({
-    id: nanoid(MAX_ID_LENGTH),
     text: shuffle(comments)
       .slice(0, getRandomInt(1, 3))
       .join(` `),
@@ -75,43 +70,81 @@ const generateComments = (count, comments) => (
   }))
 );
 
+const getRandomSubarray = (items) => {
+  items = items.slice();
+  let count = getRandomInt(1, items.length - 1);
+  const result = [];
+  while (count--) {
+    result.push(
+        ...items.splice(
+            getRandomInt(0, items.length - 1), 1
+        )
+    );
+  }
+  return result;
+};
+
+
 const generateArticles = (count, titles, categories, announces, comments, photo) =>
   Array(count)
     .fill({})
     .map(() => ({
-      id: nanoid(MAX_ID_LENGTH),
       title: getRandFromArr(titles),
       createdDate: getDate(),
-      announce: getAnnounce(announces),
+      announce: getText(getAnnounce(announces), MAX_ANNOUNCE_LENGTH),
       fullText: getFullText(announces),
-      categories: getRandomCategories(categories),
+      categories: getRandomSubarray(categories),
       comments: generateComments(getRandomInt(1, MAX_COMMENTS), comments),
       photo: getRandFromArr(photo),
     }));
 
 module.exports = {
-  name: `--generate`,
+  name: `--filldb`,
   async run(args) {
+    const [count] = args;
+    const countArticle = Number.parseInt(count, 10) || DEFAULT_COUNT;
+    if (countArticle > MOCK_COUNT_RESTRICT) {
+      console.info(`Не больше 1000 объявлений`);
+      return;
+    }
+
+    try {
+      logger.info(`Trying to connect to database...`);
+      await sequelize.authenticate();
+    } catch (err) {
+      logger.error(`An error occurred: ${err.message}`);
+      process.exit(1);
+    }
+    logger.info(`Connection to database established`);
+
+    const {Category, Article} = defineModels(sequelize);
+    await sequelize.sync({force: true});
+
     const titles = await readContent(FILE_TITLES_PATH);
     const categories = await readContent(FILE_CATEGORIES_PATH);
     const announces = await readContent(FILE_ANNOUNCES_PATH);
     const comments = await readContent(FILE_COMMENTS_PATH);
     const photo = await readContent(FILE_PHOTOS_PATH);
 
-    const [count] = args;
-    const countOffer = Number.parseInt(count, 10) || DEFAULT_COUNT;
-    if (countOffer > MOCK_COUNT_RESTRICT) {
-      console.info(`Не больше 1000 объявлений`);
-      return;
-    }
+    const articles = generateArticles(countArticle, titles, categories, announces, comments, photo);
 
-    const content = JSON.stringify(generateArticles(countOffer, titles, categories, announces, comments, photo));
+    const categoryModels = await Category.bulkCreate(
+        categories.map((item) => ({name: item}))
+    );
 
-    try {
-      await fs.writeFile(FILE_NAME, content);
-      console.info(chalk.green(`Operation success. File created.`));
-    } catch (err) {
-      console.error(chalk.red(`Can't write data to file...`));
-    }
+    const categoryIdByName = categoryModels.reduce(
+        (acc, {id, name}) => ({
+          [name]: id,
+          ...acc,
+        }),
+        {}
+    );
+
+    const articlePromises = articles.map(async (article) => {
+      const articleModel = await Article.create(article, {include: [Aliase.COMMENTS]});
+      await articleModel.addCategories(article.categories.map((name) => categoryIdByName[name]));
+    });
+
+    await Promise.all(articlePromises);
   },
 };
