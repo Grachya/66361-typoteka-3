@@ -60,7 +60,8 @@ module.exports = (app, articleService, commentService) => {
   route.delete(`/:articleId/comments/:commentId`, articleExists(articleService), (req, res) => {
     const {article} = res.locals;
     const {articleId, commentId} = req.params;
-
+    // Переписать
+    // метода findOne больше нет
     const comment = commentService.findOne(commentId, articleId);
 
     if (!comment) {
