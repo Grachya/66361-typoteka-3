@@ -9,13 +9,19 @@ class CategoryService {
     this._ArticleCategory = sequelize.models.ArticleCategory;
   }
 
-  async findAll(withCount) {
+  async findAll({withCount}) {
     if (withCount) {
       const result = await this._Category.findAll({
         attributes: [
           `id`,
           `name`,
-          [Sequelize.fn(`COUNT`, `*`), `count`]
+          [
+            Sequelize.fn(
+                `COUNT`,
+                `*`
+            ),
+            `count`
+          ]
         ],
         group: [Sequelize.col(`Category.id`)],
         include: [{

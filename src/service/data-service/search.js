@@ -8,7 +8,7 @@ class SearchService {
     this._Article = sequelize.models.Article;
   }
 
-  findAll(serchText) {
+  async findAll(searchText) {
     const articles = await this._Article.findAll({
       where: {
         title: {
@@ -20,7 +20,7 @@ class SearchService {
         [`createdAt`, `DESC`]
       ]
     });
-    return articles.map((article) => article.get())
+    return articles.map((article) => article.get());
   }
 }
 

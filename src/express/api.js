@@ -23,16 +23,16 @@ class API {
     return this._load(`/articles`, {params: {needComments}});
   }
 
-  getArticle(id) {
-    return this._load(`/articles/${id}`);
+  getArticle(id, {needComments} = {}) {
+    return this._load(`/articles/${id}`, {params: {needComments}});
   }
 
   search(query) {
     return this._load(`/search`, {params: {query}});
   }
 
-  async getCategories(withCount) {
-    return await this._load(`/categories`, {withCount});
+  async getCategories({withCount} = {}) {
+    return await this._load(`/categories`, {params: {withCount}});
   }
 
   async createArticle(data) {

@@ -8,7 +8,7 @@ const {HttpCode} = require(`../../constants`);
 mainRoutes.get(`/`, async (req, res) => {
   try {
     const [articles, categories] = await Promise.all([
-      api.getArticles(),
+      api.getArticles({needComments: true}),
       api.getCategories({withCount: true})
     ]);
     return res.render(`main`, {nobackground: false, articles, categories});
@@ -30,12 +30,12 @@ mainRoutes.get(`/search`, async (req, res) => {
   try {
     const results = await api.search(query);
 
-    return res.render(`search/search1`, {
+    return res.render(`search`, {
       results,
       query,
     });
   } catch (error) {
-    return res.render(`search/search1`, {
+    return res.render(`search`, {
       results: [],
       query,
     });
