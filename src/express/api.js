@@ -19,8 +19,8 @@ class API {
     return response.data;
   }
 
-  getArticles() {
-    return this._load(`/articles`);
+  getArticles({needComments}) {
+    return this._load(`/articles`, {params: {needComments}});
   }
 
   getArticle(id) {
@@ -31,8 +31,8 @@ class API {
     return this._load(`/search`, {params: {query}});
   }
 
-  async getCategories() {
-    return await this._load(`/categories`);
+  async getCategories(withCount) {
+    return await this._load(`/categories`, {withCount});
   }
 
   async createArticle(data) {

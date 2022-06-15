@@ -109,7 +109,7 @@ block content
             ul.preview__breadcrumbs
               each category of article.categories
                 li.preview__breadcrumbs-item
-                  a.preview__breadcrumbs-link(href='#') #{category}
+                  a.preview__breadcrumbs-link(href='#') #{category.name}
             .preview__background
               +insertArticleImage(article)
             +insertTime(article)(class=`preview__time`)

@@ -7,15 +7,20 @@ const {HttpCode} = require(`../../constants`);
 
 mainRoutes.get(`/`, async (req, res) => {
   try {
-    const articles = await api.getArticles();
-    return res.render(`main`, {nobackground: false, articles});
+    const [articles, categories] = await Promise.all([
+      api.getArticles(),
+      api.getCategories({withCount: true})
+    ]);
+    return res.render(`main`, {nobackground: false, articles, categories});
   } catch (error) {
     return res.status(HttpCode.NOT_FOUND).send(error.message);
   }
 });
+
 mainRoutes.get(`/register`, (req, res) =>
   res.render(`sign-up`, {nobackground: false})
 );
+
 mainRoutes.get(`/login`, (req, res) =>
   res.render(`login`, {nobackground: false})
 );
