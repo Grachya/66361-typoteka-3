@@ -4,6 +4,7 @@ const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
 const {logger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
+const initDB = require(`../lib/init-db`);
 const defineModels = require(`../models`);
 const Aliase = require(`../models/aliase`);
 
@@ -117,9 +118,6 @@ module.exports = {
     }
     logger.info(`Connection to database established`);
 
-    const {Category, Article} = defineModels(sequelize);
-    await sequelize.sync({force: true});
-
     const titles = await readContent(FILE_TITLES_PATH);
     const categories = await readContent(FILE_CATEGORIES_PATH);
     const announces = await readContent(FILE_ANNOUNCES_PATH);
@@ -128,23 +126,6 @@ module.exports = {
 
     const articles = generateArticles(countArticle, titles, categories, announces, comments, photo);
 
-    const categoryModels = await Category.bulkCreate(
-        categories.map((item) => ({name: item}))
-    );
-
-    const categoryIdByName = categoryModels.reduce(
-        (acc, {id, name}) => ({
-          [name]: id,
-          ...acc,
-        }),
-        {}
-    );
-
-    const articlePromises = articles.map(async (article) => {
-      const articleModel = await Article.create(article, {include: [Aliase.COMMENTS]});
-      await articleModel.addCategories(article.categories.map((name) => categoryIdByName[name]));
-    });
-
-    await Promise.all(articlePromises);
+    initDB(sequelize, {categories, articles});
   },
 };
