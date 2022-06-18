@@ -69,7 +69,7 @@ module.exports = (app, articleService, commentService) => {
   route.delete(`/:articleId/comments/:commentId`, articleExists(articleService), async (req, res) => {
     const {commentId} = req.params;
 
-    const deletedComment = await commentService.delete(commentId);
+    const deletedComment = await commentService.drop(commentId);
 
     if (!deletedComment) {
       return res.status(HttpCode.NOT_FOUND).send(`Not found`);

@@ -2,181 +2,200 @@
 
 const express = require(`express`);
 const request = require(`supertest`);
-
-const article = require(`./articles`);
+const Sequelize = require(`sequelize`);
+const initDB = require(`../lib/init-db`);
+const article = require(`./article`);
 const {ArticleService, CommentService} = require(`../data-service`);
 
-const mockData = [
+const mockCategories = [
+  `Деревья`,
+  `За жизнь`,
+  `Без рамки`,
+  `Разное`,
+  `IT`,
+  `Музыка`,
+  `Кино`,
+  `Программирование`,
+  `Железо`
+];
+
+const mockArticles = [
   {
-    id: `ioOg3T`,
-    title: `Как достигнуть успеха не вставая с кресла`,
-    createdDate: `2022-2-12 22:17:15`,
+    title: `Ёлки. История деревьев`,
     announce:
-      `Это один из лучших рок-музыкантов. Процессор заслуживает особого внимания. Он обязательно понравится геймерам со стажем.`,
+      `Альбом стал настоящим открытием года. Мощные гитарные рифы и скоростные соло-партии не дадут заскучать. Этот смартфон — настоящая находка. Большой и яркий экран, мощнейший процессор — всё это в небольшом гаджете. Из под его пера вышло 8 платиновых альбомов. Как начать действовать? Для начала просто соберитесь.`,
     fullText:
-      `Бороться с прокрастинацией несложно. Просто действуйте. Маленькими шагами. Ёлки — это не просто красивое дерево. Это прочная древесина. Бороться с прокрастинацией несложно. Просто действуйте. Маленькими шагами.`,
-    categories: [`Деревья`],
-    comments: [
-      {
-        id: `fFCdcV`,
-        text: `Совсем немного..., Мне кажется или я уже читал это где-то?,`,
-      },
-      { id: `59scN1`, text: `Согласен с автором!,` },
-      {
-        id: `iYJ-7C`,
-        text: `Совсем немного..., Мне кажется или я уже читал это где-то?,`,
-      },
+      `Золотое сечение — соотношение двух величин, гармоническая пропорция. Как начать действовать? Для начала просто соберитесь.`,
+    categories: [
+      `Без рамки`,
+      `Разное`,
+      `Музыка`,
+      `Деревья`,
+      `Кино`,
+      `IT`,
+      `Программирование`
     ],
-    photo: `forest@1x.jpg`,
-  },
-  {
-    id: `tE7T0S`,
-    title: `Как перестать беспокоиться и начать жить`,
-    createdDate: `2022-3-5 20:47:41`,
-    announce:
-      `Игры и программирование разные вещи. Не стоит идти в программисты, если вам нравятся только игры. Бороться с прокрастинацией несложно. Просто действуйте. Маленькими шагами.`,
-    fullText:
-      `Он написал больше 30 хитов. Первая большая ёлка была установлена только в 1938 году. Золотое сечение — соотношение двух величин, гармоническая пропорция. Золотое сечение — соотношение двух величин, гармоническая пропорция. Рок-музыка всегда ассоциировалась с протестами. Так ли это на самом деле? Это один из лучших рок-музыкантов.`,
-    categories: [`IT`, `Разное`, `Без рамки`],
     comments: [
       {
-        id: `fZ1O1n`,
-        text: `Мне кажется или я уже читал это где-то?, Планируете записать видосик на эту тему? Хочу такую же футболку :-),`,
+        text: `Плюсую, но слишком много буквы!, Мне не нравится ваш стиль. Ощущение, что вы меня поучаете., Совсем немного...,`,
       },
       {
-        id: `6-hE3_`,
-        text: `Хочу такую же футболку :-), Мне кажется или я уже читал это где-то?,`,
+        text: `Согласен с автором!, Хочу такую же футболку :-), Планируете записать видосик на эту тему?`,
+      },
+      {
+        text: `Плюсую, но слишком много буквы!, Мне кажется или я уже читал это где-то?, Согласен с автором!,`,
       },
     ],
     photo: `sea@1x.jpg`,
   },
   {
-    id: `ecKDZO`,
-    title: `Как собрать камни бесконечности`,
-    createdDate: `2022-2-11 11:46:07`,
-    announce:
-      `Бороться с прокрастинацией несложно. Просто действуйте. Маленькими шагами. Золотое сечение — соотношение двух величин, гармоническая пропорция. Ёлки — это не просто красивое дерево. Это прочная древесина.`,
-    fullText:
-      `Рок-музыка всегда ассоциировалась с протестами. Так ли это на самом деле? Это один из лучших рок-музыкантов. Простые ежедневные упражнения помогут достичь успеха. Игры и программирование разные вещи. Не стоит идти в программисты, если вам нравятся только игры. Вы можете достичь всего. Стоит только немного постараться и запастись книгами. Процессор заслуживает особого внимания. Он обязательно понравится геймерам со стажем. Он написал больше 30 хитов.`,
-    categories: [`Кино`],
-    comments: [
-      {
-        id: `SaCP-1`,
-        text: `Это где ж такие красоты?, Плюсую, но слишком много буквы!,`,
-      },
-      {
-        id: `dE1TxV`,
-        text: `Мне кажется или я уже читал это где-то?, Согласен с автором!,`,
-      },
-    ],
-    photo: `forest@1x.jpg`,
-  },
-  {
-    id: `4vRBhT`,
-    title: `Как перестать беспокоиться и начать жить`,
-    createdDate: `2022-2-17 3:23:03`,
-    announce:
-      `Помните, небольшое количество ежедневных упражнений лучше, чем один раз, но много.`,
-    fullText:
-      `Освоить вёрстку несложно. Возьмите книгу новую книгу и закрепите все упражнения на практике.`,
-    categories: [`Кино`, `Программирование`, `Железо`, `Деревья`],
-    comments: [
-      {
-        id: `7ILJsU`,
-        text: `Плюсую, но слишком много буквы!, Мне не нравится ваш стиль. Ощущение, что вы меня поучаете.,`,
-      },
-    ],
-    photo: `forest@1x.jpg`,
-  },
-  {
-    id: `Pq6x8e`,
-    title: `Что такое золотое сечение`,
-    createdDate: `2022-1-10 11:21:58`,
-    announce: `Ёлки — это не просто красивое дерево. Это прочная древесина.`,
-    fullText:
-      `Вы можете достичь всего. Стоит только немного постараться и запастись книгами. Альбом стал настоящим открытием года. Мощные гитарные рифы и скоростные соло-партии не дадут заскучать.`,
-    categories: [`Разное`, `За жизнь`, `Железо`, `Кино`],
-    comments: [
-      { id: `Etekd5`, text: `Мне кажется или я уже читал это где-то?,` },
-      {
-        id: `Y1vpl4`,
-        text: `Совсем немного..., Мне не нравится ваш стиль. Ощущение, что вы меня поучаете., Это где ж такие красоты?,`,
-      },
-      {
-        id: `HOGrz-`,
-        text: `Планируете записать видосик на эту тему? Плюсую, но слишком много буквы!, Хочу такую же футболку :-),`,
-      },
-      { id: `bNbOht`, text: `Согласен с автором!,` },
-    ],
-    photo: `sea@1x.jpg`,
-  },
-  {
-    id: `1ETquD`,
-    title: `Борьба с прокрастинацией`,
-    createdDate: `2022-3-2 0:54:19`,
+    title: `Ёлки. История деревьев`,
     announce: ``,
     fullText:
-      `Достичь успеха помогут ежедневные повторения. Как начать действовать? Для начала просто соберитесь. Это один из лучших рок-музыкантов. Золотое сечение — соотношение двух величин, гармоническая пропорция. Вы можете достичь всего. Стоит только немного постараться и запастись книгами.`,
-    categories: [`За жизнь`, `Кино`],
+      `Первая большая ёлка была установлена только в 1938 году. Программировать не настолько сложно, как об этом говорят. Первая большая ёлка была установлена только в 1938 году. Процессор заслуживает особого внимания. Он обязательно понравится геймерам со стажем. Вы можете достичь всего. Стоит только немного постараться и запастись книгами. Рок-музыка всегда ассоциировалась с протестами. Так ли это на самом деле? Освоить вёрстку несложно. Возьмите книгу новую книгу и закрепите все упражнения на практике. Альбом стал настоящим открытием года. Мощные гитарные рифы и скоростные соло-партии не дадут заскучать. Достичь успеха помогут ежедневные повторения. Бороться с прокрастинацией несложно. Просто действуйте. Маленькими шагами. Как начать действовать? Для начала просто соберитесь. Он написал больше 30 хитов. Золотое сечение — соотношение двух величин, гармоническая пропорция. Это один из лучших рок-музыкантов.`,
+    categories: [
+      `Без рамки`,
+      `Разное`,
+      `Музыка`,
+      `Деревья`,
+      `Кино`,
+      `IT`,
+      `Программирование`
+    ],
     comments: [
       {
-        id: `kjqP9w`,
-        text: `Плюсую, но слишком много буквы!, Совсем немного..., Планируете записать видосик на эту тему?`,
+        text: `Хочу такую же футболку :-), Давно не пользуюсь стационарными компьютерами. Ноутбуки победили., Плюсую, но слишком много буквы!,`,
       },
       {
-        id: `sMGL-C`,
-        text: `Планируете записать видосик на эту тему? Хочу такую же футболку :-),`,
-      },
-      {
-        id: `aHHoUM`,
-        text: `Мне кажется или я уже читал это где-то?, Совсем немного..., Согласен с автором!,`,
+        text: `Давно не пользуюсь стационарными компьютерами. Ноутбуки победили., Это где ж такие красоты?,`,
       },
     ],
-    photo: `forest@1x.jpg`,
+    photo: `sea@1x.jpg`,
+  },
+  {
+    title: `Рок — это протест`,
+    announce:
+      `Освоить вёрстку несложно. Возьмите книгу новую книгу и закрепите все упражнения на практике. Простые ежедневные упражнения помогут достичь успеха. Как начать действовать? Для начала просто соберитесь. Как начать действовать? Для начала просто соберитесь.`,
+    fullText:
+      `Простые ежедневные упражнения помогут достичь успеха. Рок-музыка всегда ассоциировалась с протестами. Так ли это на самом деле? Золотое сечение — соотношение двух величин, гармоническая пропорция.`,
+    categories: [
+      `Без рамки`,
+      `Разное`,
+      `Музыка`,
+      `Деревья`,
+      `Кино`,
+      `IT`,
+      `Программирование`
+    ],
+    comments: [
+      {
+        text: `Планируете записать видосик на эту тему? Совсем немного...,`,
+      },
+      {
+        text: `Мне кажется или я уже читал это где-то?, Плюсую, но слишком много буквы!, Совсем немного...,`,
+      },
+    ],
+    photo: `skyscraper@1x.jpg`,
+  },
+  {
+    title: `Ёлки. История деревьев`,
+    announce:
+      `Собрать камни бесконечности легко, если вы прирожденный герой. Процессор заслуживает особого внимания. Он обязательно понравится геймерам со стажем. Бороться с прокрастинацией несложно. Просто действуйте. Маленькими шагами.`,
+    fullText:
+      `Из под его пера вышло 8 платиновых альбомов. Рок-музыка всегда ассоциировалась с протестами. Так ли это на самом деле? Этот смартфон — настоящая находка. Большой и яркий экран, мощнейший процессор — всё это в небольшом гаджете. Вы можете достичь всего. Стоит только немного постараться и запастись книгами. Бороться с прокрастинацией несложно. Просто действуйте. Маленькими шагами.`,
+    categories: [
+      `Без рамки`,
+      `Разное`,
+      `Музыка`,
+      `Деревья`,
+      `Кино`,
+      `IT`,
+      `Программирование`
+    ],
+    comments: [
+      {
+        text: `Планируете записать видосик на эту тему? Согласен с автором!,`,
+      },
+      {
+        text: `Мне кажется или я уже читал это где-то?, Это где ж такие красоты?, Хочу такую же футболку :-),`,
+      },
+      {
+        text: `Хочу такую же футболку :-), Планируете записать видосик на эту тему?`,
+      },
+    ],
+    photo: `skyscraper@1x.jpg`,
+  },
+  {
+    title: `Лучшие рок-музыканты 20-века`,
+    announce: ``,
+    fullText:
+      `Бороться с прокрастинацией несложно. Просто действуйте. Маленькими шагами. Помните, небольшое количество ежедневных упражнений лучше, чем один раз, но много. Игры и программирование разные вещи. Не стоит идти в программисты, если вам нравятся только игры.`,
+    categories: [
+      `Без рамки`,
+      `Разное`,
+      `Музыка`,
+      `Деревья`,
+      `Кино`,
+      `IT`,
+      `Программирование`
+    ],
+    comments: [
+      {
+        text: `Мне кажется или я уже читал это где-то?, Совсем немного..., Плюсую, но слишком много буквы!,`,
+      },
+      {
+        text: `Согласен с автором!, Планируете записать видосик на эту тему? Давно не пользуюсь стационарными компьютерами. Ноутбуки победили.,`,
+      },
+      {
+        text: `Мне кажется или я уже читал это где-то?, Согласен с автором!, Хочу такую же футболку :-),`,
+      },
+      {
+        text: `Совсем немного..., Хочу такую же футболку :-), Давно не пользуюсь стационарными компьютерами. Ноутбуки победили.,`,
+      },
+    ],
+    photo: `skyscraper@1x.jpg`,
   },
 ];
 
-const createAPI = () => {
-  const cloneData = JSON.parse(JSON.stringify(mockData));
+const createAPI = async () => {
+  const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
+  await initDB(mockDB, {categories: mockCategories, articles: mockArticles});
   const app = express();
   app.use(express.json());
-  article(app, new ArticleService(cloneData), new CommentService(cloneData));
+  article(app, new ArticleService(mockDB), new CommentService(mockDB));
   return app;
 };
 
 const {HttpCode} = require(`../../constants`);
 
 describe(`API returns a list of all articles`, () => {
-  const app = createAPI();
-
+  let app;
   let response;
 
   beforeAll(async () => {
+    app = await createAPI();
     response = await request(app).get(`/articles`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns a list of 6 articles`, () =>
-    expect(response.body.length).toBe(6));
-
-  test(`First article's id equals "ioOg3T"`, () =>
-    expect(response.body[0].id).toBe(`ioOg3T`));
+  test(`Returns a list of 5 articles`, () =>
+    expect(response.body.length).toBe(5));
 });
 
 describe(`API returns an article with given id`, () => {
-  const app = createAPI();
-
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).get(`/articles/ioOg3T`);
+    app = await createAPI();
+    response = await request(app).get(`/articles/3`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Article's title is "Как достигнуть успеха не вставая с кресла"`, () =>
-    expect(response.body.title).toBe(`Как достигнуть успеха не вставая с кресла`));
+  test(`Article's title is "Рок — это протест"`, () =>
+    expect(response.body.title).toBe(`Рок — это протест`));
 });
 
 describe(`API creates an article if data is valid`, () => {
@@ -184,29 +203,25 @@ describe(`API creates an article if data is valid`, () => {
     title: `История страны`,
     announce: `Тот кто не знает истории, обречен ее повторять.`,
     fullText: `В истории страны может быть всякое, и часто она зависит от презедента страны.`,
-    categories: [`Разное`],
+    categories: [],
     photo: `forest@1x.jpg`,
-    createdDate: `27.01.2022, 10:11:47`
   };
 
-  const app = createAPI();
-
+  let app;
   let response;
 
   beforeAll(async () => {
+    app = await createAPI();
     response = await request(app).post(`/articles`).send(newArticle);
   });
 
   test(`Status code 201`, () =>
     expect(response.statusCode).toBe(HttpCode.CREATED));
 
-  test(`Returns article created`, () =>
-    expect(response.body).toEqual(expect.objectContaining(newArticle)));
-
   test(`Articles count is changed`, () =>
     request(app)
       .get(`/articles`)
-      .expect((res) => expect(res.body.length).toBe(7)));
+      .expect((res) => expect(res.body.length).toBe(6)));
 });
 
 describe(`API refuses to create an article if data is invalid`, () => {
@@ -218,9 +233,8 @@ describe(`API refuses to create an article if data is invalid`, () => {
     photo: `forest@1x.jpg`
   };
 
-  const app = createAPI();
-
   test(`Without any required property response code is 400`, async () => {
+    const app = await createAPI();
     for (const key of Object.keys(newArticle)) {
       const badArticle = {...newArticle};
       delete badArticle[key];
@@ -234,7 +248,7 @@ describe(`API refuses to create an article if data is invalid`, () => {
 
 describe(`API changes existent article`, () => {
   const newArticle = {
-    title: `История страны`,
+    title: `Новый заголовок`,
     announce: `Тот кто не знает истории, обречен ее повторять.`,
     fullText: `В истории страны может быть всякое, и часто она зависит от презедента страны.`,
     categories: [`Разное`],
@@ -242,45 +256,40 @@ describe(`API changes existent article`, () => {
     createdDate: `27.01.2022, 10:11:47`
   };
 
-  const app = createAPI();
-
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).put(`/articles/tE7T0S`).send(newArticle);
+    app = await createAPI();
+    response = await request(app).put(`/articles/3`).send(newArticle);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns changed article`, () =>
-    expect(response.body).toEqual(expect.objectContaining(newArticle)));
-
   test(`Article is really changed`, () =>
     request(app)
-      .get(`/articles/tE7T0S`)
-      .expect((res) => expect(res.body.title).toBe(`История страны`)));
+      .get(`/articles/3`)
+      .expect((res) => expect(res.body.title).toBe(`Новый заголовок`)));
 });
 
-test(`API returns status code 404 when trying to change non-existent article`, () => {
-  const app = createAPI();
-
+test(`API returns status code 404 when trying to change non-existent article`, async () => {
   const validArticle = {
     title: `Это"`,
     announce: `Валидный`,
     fullText: `объект`,
     categories: [`объявления`],
     photo: `forest@1x.jpg`,
-    createdDate: `27.01.2022, 10:11:47`,
   };
 
+  const app = await createAPI();
   return request(app)
-    .put(`/articles/NOEXST`)
+    .put(`/articles/999999`)
     .send(validArticle)
     .expect(HttpCode.NOT_FOUND);
 });
 
-test(`API returns status code 400 when trying to change an article with invalid data`, () => {
-  const app = createAPI();
+test(`API returns status code 400 when trying to change an article with invalid data`, async () => {
+  const app = await createAPI();
 
   const invalidArticle = {
     title: `Это"`,
@@ -290,40 +299,36 @@ test(`API returns status code 400 when trying to change an article with invalid 
   };
 
   return request(app)
-    .put(`/articles/W6m3vr`)
+    .put(`/articles/3`)
     .send(invalidArticle)
     .expect(HttpCode.BAD_REQUEST);
 });
 
 describe(`API correctly deletes an article`, () => {
-  const app = createAPI();
-
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).delete(`/articles/tE7T0S`);
+    app = await createAPI();
+    response = await request(app).delete(`/articles/3`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns deleted article`, () =>
-    expect(response.body.id).toBe(`tE7T0S`));
-
-  test(`Articles count is 5 now`, () =>
+  test(`Articles count is 4 now`, () =>
     request(app)
       .get(`/articles`)
-      .expect((res) => expect(res.body.length).toBe(5)));
+      .expect((res) => expect(res.body.length).toBe(4)));
 });
 
-test(`API refuses to delete non-existent article`, () => {
-  const app = createAPI();
+test(`API refuses to delete non-existent article`, async () => {
+  const app = await createAPI();
 
   return request(app).delete(`/articles/NOEXST`).expect(HttpCode.NOT_FOUND);
 });
 
-
-test(`API refuses to create a comment to non-existent article and returns status code 404`, () => {
-  const app = createAPI();
+test(`API refuses to create a comment to non-existent article and returns status code 404`, async () => {
+  const app = await createAPI();
 
   return request(app)
     .post(`/articles/NOEXST/comments`)
@@ -333,10 +338,10 @@ test(`API refuses to create a comment to non-existent article and returns status
     .expect(HttpCode.NOT_FOUND);
 });
 
-test(`API refuses to delete non-existent comment`, () => {
-  const app = createAPI();
+test(`API refuses to delete non-existent comment`, async () => {
+  const app = await createAPI();
 
   return request(app)
-    .delete(`/articles/W6m3vr/comments/NOEXST`)
+    .delete(`/articles/1/comments/NOEXST`)
     .expect(HttpCode.NOT_FOUND);
 });
