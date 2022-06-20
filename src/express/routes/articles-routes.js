@@ -66,8 +66,11 @@ articlesRoutes.get(`/edit/:id`, async (req, res) => {
 articlesRoutes.get(`/:id`, async (req, res) => {
   const {id} = req.params;
   try {
-    const article = await api.getArticle(id);
-    return res.render(`post-detail`, {nobackground: false, article});
+    const [article, categories] = await Promise.all([
+      api.getArticle(id, {needComments: true}),
+      api.getCategories({withCount: true})
+    ]);
+    return res.render(`post-detail`, {article, categories});
   } catch (error) {
     return res.status(HttpCode.NOT_FOUND).send(error.message);
   }

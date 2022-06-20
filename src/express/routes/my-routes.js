@@ -16,15 +16,16 @@ myRoutes.get(`/`, async (req, res) => {
 
 myRoutes.get(`/comments`, async (req, res) => {
   try {
-    const articles = await api.getArticles();
+    const articles = await api.getArticles({needComments: true});
     return res.render(`comments`, {nobackground: true, articles});
   } catch (error) {
     return res.status(HttpCode.NOT_FOUND).send(error.message);
   }
 });
 
-myRoutes.get(`/categories`, (req, res) =>
-  res.render(`all-categories`, {nobackground: true})
-);
+myRoutes.get(`/categories`, async (req, res) => {
+  const categories = await api.getCategories();
+  res.render(`all-categories`, {nobackground: true, categories});
+});
 
 module.exports = myRoutes;

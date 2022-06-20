@@ -1,4 +1,4 @@
-extends ../layout.pug
+extends ./layout.pug
 
 block content
   header.header
@@ -20,12 +20,16 @@ block content
     a.header__search.button.button--search(href='/search' aria-label='поиск по сайту')
   main
     section.search-page
-      .search-page__wrapper.search-page__wrapper--empty
+      div(class=`search-page__wrapper${results.length ? `` : ` search-page__wrapper--empty`}`)
         h1 Поиск
         .search.search-page__form
-          form(action='#' method='get')
+          form(action='/search' method='get')
             label
-              input(type='text' placeholder='Что ищем?' value='Путешествия' name='search')
+              input(type='text' name='query' placeholder='Что ищем?' value=`${query ? query : ''}`)
             button.search__button.button.button--transparent(type='submit') Найти
-        p.search-page__empty Ничего не нашлось
-
+          each article of results
+            .search__result
+              time.search__date(datetime=article.createdAt) #{formatDate(article.createdAt)}
+              a.search__link(href=`/articles/${article.id}`) #{article.title}
+        if !results.length
+          p.search-page__empty Ничего не нашлось

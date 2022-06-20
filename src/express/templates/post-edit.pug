@@ -49,10 +49,10 @@ block content
                       | Обзор
                   button.button.button--transparent Удалить
                 .new-publication__category-wrapper
-                  each category of article.categories
-                    .new-publication__checkbox.new-publication__checkbox--auto
-                      input(type='checkbox' name="category-1" id="checkbox-auto" checked=true)
-                      label(for=`category-auto`) #{category}
+                  each category, index in categories
+                    .new-publication__checkbox(class=`new-publication__checkbox--${index}`)
+                      input(id=index type="checkbox" name="categories[]" value=category.id checked=(article.categories.some(item => item.id === category.id)))
+                      label(for=index) #{category.name}
                   a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
               .form__wrapper.form__wrapper--text
                 .form__field.form__field--publication-text

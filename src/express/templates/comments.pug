@@ -18,6 +18,7 @@ block content
         li.navigation__item
           a(href='main.html') Пункт меню
     a.header__search.button.button--search(href='/search' aria-label='поиск по сайту')
+  
   main.main-page.main-page--padding
     section.main-page__publication.publication
       h1.publication__title Комментарии
@@ -30,7 +31,7 @@ block content
                 b.publication__list-name Александр Петров
                 +insertTime(article)(class=`publication__item-time`)
               a.publication__item-text(href='#')
-                | Главреды «Дождя», Forbes и других СМИ попросили Роскомнадзор разъяснить штрафы за ссылки на сайты.
+                | #{comment.text}
               p.publication__text-strong
                 | «Яндекс.Метрика» запустила бесплатный сервис для оценки эффективности баннеров и видеорекламы в реальном времени
               button.publication__button.button.button--close-item(type='button')

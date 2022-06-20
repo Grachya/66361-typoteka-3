@@ -7,7 +7,7 @@ const API_PREFIX = `/api`;
 const {HttpCode} = require(`./httpCode`);
 const postsRoutes = require(`../routes/posts-routes`);
 const routes = require(`../api`);
-const {getLogger} = require(`../../../lib/logger`);
+const {getLogger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
 
 const logger = getLogger({name: `api`});
