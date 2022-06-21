@@ -5,8 +5,6 @@ const chalk = require(`chalk`);
 const {logger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
 const initDB = require(`../lib/init-db`);
-const defineModels = require(`../models`);
-const Aliase = require(`../models/aliase`);
 
 const DEFAULT_COUNT = 1;
 const MOCK_COUNT_RESTRICT = 1000;

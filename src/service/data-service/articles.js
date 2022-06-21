@@ -1,6 +1,6 @@
 "use strict";
 
-const Aliase = require(`../models/aliase`);
+const Alias = require(`../models/alias`);
 
 class ArticleService {
   constructor(sequelize) {
@@ -15,7 +15,7 @@ class ArticleService {
     return article.get();
   }
 
-  async drop(id) {
+  async delete(id) {
     const deletedRows = await this._Article.destroy({
       where: {id}
     });
@@ -23,10 +23,10 @@ class ArticleService {
   }
 
   async findOne(id, needComments) {
-    const include = [Aliase.CATEGORIES];
+    const include = [Alias.CATEGORIES];
 
     if (needComments) {
-      include.push(Aliase.COMMENTS);
+      include.push(Alias.COMMENTS);
     }
     return await this._Article.findByPk(id, {include});
   }
@@ -39,10 +39,10 @@ class ArticleService {
   }
 
   async findAll(needComments) {
-    const include = [Aliase.CATEGORIES];
+    const include = [Alias.CATEGORIES];
 
     if (needComments) {
-      include.push(Aliase.COMMENTS);
+      include.push(Alias.COMMENTS);
     }
 
     const articles = await this._Article.findAll({
@@ -56,9 +56,9 @@ class ArticleService {
   }
 
   async findPage({limit, offset, needComments}) {
-    const include = [Aliase.CATEGORIES];
+    const include = [Alias.CATEGORIES];
     if (needComments) {
-      include.push(Aliase.COMMENTS);
+      include.push(Alias.COMMENTS);
     }
     const {count, rows} = await this._Article.findAndCountAll({
       limit,
