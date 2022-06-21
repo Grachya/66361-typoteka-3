@@ -13,7 +13,7 @@ class CommentService {
     });
   }
 
-  async drop(id) {
+  async delete(id) {
     const deletedRows = await this._Comment.destroy({
       where: {id}
     });

@@ -24,8 +24,12 @@ myRoutes.get(`/comments`, async (req, res) => {
 });
 
 myRoutes.get(`/categories`, async (req, res) => {
-  const categories = await api.getCategories();
-  res.render(`all-categories`, {nobackground: true, categories});
+  try {
+    const categories = await api.getCategories();
+    res.render(`all-categories`, {nobackground: true, categories});
+  } catch (error) {
+    return res.status(HttpCode.NOT_FOUND).send(error.message);
+  }
 });
 
 module.exports = myRoutes;

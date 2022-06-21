@@ -1,6 +1,6 @@
 "use strict";
 
-const Aliase = require(`./aliase`);
+const Alias = require(`./alias`);
 const {Model} = require(`sequelize`);
 const defineCategory = require(`./category`);
 const defineComment = require(`./comment`);
@@ -14,14 +14,14 @@ const defineModels = (sequelize) => {
   const Article = defineArticle(sequelize);
 
   Article.hasMany(Comment, {
-    as: Aliase.COMMENTS, foreignKey: `articleId`, onDelete: `cascade`
+    as: Alias.COMMENTS, foreignKey: `articleId`, onDelete: `cascade`
   });
   Comment.belongsTo(Article, {foreignKey: `articleId`});
 
   ArticleCategory.init({}, {sequelize});
-  Article.belongsToMany(Category, {through: `articleCategories`, as: Aliase.CATEGORIES});
-  Category.belongsToMany(Article, {through: `articleCategories`, as: Aliase.ARTICLES});
-  Category.hasMany(ArticleCategory, {as: Aliase.ARTICLES_CATEGORIES});
+  Article.belongsToMany(Category, {through: `articleCategories`, as: Alias.CATEGORIES});
+  Category.belongsToMany(Article, {through: `articleCategories`, as: Alias.ARTICLES});
+  Category.hasMany(ArticleCategory, {as: Alias.ARTICLES_CATEGORIES});
 
   return {Category, Comment, Article, ArticleCategory};
 };

@@ -11,9 +11,14 @@ module.exports = (app, articleService, commentService) => {
   app.use(`/articles`, route);
 
   route.get(`/`, async (req, res) => {
-    const {needComments} = req.query;
-    const allArticles = await articleService.findAll(needComments);
-    return res.status(HttpCode.OK).json(allArticles);
+    const {limit, offset, needComments} = req.query;
+    let result;
+    if (limit || offset) {
+      result = await articleService.findPage({limit, offset, needComments});
+    } else {
+      result = await articleService.findAll(needComments);
+    }
+    return res.status(HttpCode.OK).json(result);
   });
 
   route.post(`/`, articleValidator, async (req, res) => {
@@ -38,12 +43,17 @@ module.exports = (app, articleService, commentService) => {
     const {articleId} = req.params;
     const article = req.body;
     const updatedArticle = await articleService.update(articleId, article);
+
+    if (!updatedArticle) {
+      return res.status(HttpCode.NOT_FOUND).send(`Not updated with ${articleId}`);
+    }
+
     return res.status(HttpCode.OK).json(updatedArticle);
   });
 
   route.delete(`/:articleId`, articleExists(articleService), async (req, res) => {
     const {articleId} = req.params;
-    const deletedArticle = await articleService.drop(articleId);
+    const deletedArticle = await articleService.delete(articleId);
 
     if (!deletedArticle) {
       return res.status(HttpCode.NOT_FOUND).send(`Not found article with ${articleId}`);
@@ -69,7 +79,7 @@ module.exports = (app, articleService, commentService) => {
   route.delete(`/:articleId/comments/:commentId`, articleExists(articleService), async (req, res) => {
     const {commentId} = req.params;
 
-    const deletedComment = await commentService.drop(commentId);
+    const deletedComment = await commentService.delete(commentId);
 
     if (!deletedComment) {
       return res.status(HttpCode.NOT_FOUND).send(`Not found`);
